@@ -24,6 +24,26 @@ def about(station, date):
             "temperature": temperature}
 
 
+@app.route("/api/v1/<station>")
+def just_station(station):
+    filename = "data_small/TG_STAID" + str(station).zfill(6) + ".txt"
+
+    df = pd.read_csv(filename, skiprows=20, parse_dates=['    DATE'])
+
+    return render_template("station_info.html", data=df.to_html(), title=f"Station {station}")
+
+@app.route("/api/v1/yearly/<station>/<year>")
+def just_by_year(year, station):
+    filename = "data_small/TG_STAID" + str(station).zfill(6) + ".txt"
+
+    df = pd.read_csv(filename, skiprows=20)
+
+    df['    DATE'] = df['    DATE'].astype(str)
+
+    result = df[df['    DATE'].str.startswith(str(year))]
+
+    return render_template("station_info.html", data=result.to_html(), title=f"Station {station} in {year}")
+
+
 if __name__ == "__main__":
     app.run(debug=True, port=5001)
-
